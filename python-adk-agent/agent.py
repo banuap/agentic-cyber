@@ -2,8 +2,8 @@ import json
 import requests
 from google.adk.agents.llm_agent import Agent
 
-MCP_SSE_URL = 'http://localhost:3000/mcp/sse'
-MCP_QUERY_URL = 'http://localhost:3000/mcp/query'
+MCP_SSE_URL = 'http://34.9.116.130:3000/mcp/sse'
+MCP_QUERY_URL = 'http://34.9.116.130:3000/mcp/query'
 
 def get_mongodb_connection_info() -> dict:
     """Returns the MongoDB connection information for the application."""

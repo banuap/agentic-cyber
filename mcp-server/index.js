@@ -9,7 +9,8 @@ const port = 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-const mongoUrl = 'mongodb://34.172.211.78:27017';
+// Use internal Kubernetes service name when deployed to GKE
+const mongoUrl = process.env.MONGO_URL || 'mongodb://mongodb-service.sailpoint.svc.cluster.local:27017';
 const dbName = 'app_auth';
 let db;
 

@@ -9,6 +9,27 @@ from google.adk.agents.llm_agent import Agent
 
 MCP_QUERY_URL = 'http://34.9.116.130:3000/mcp/query'
 
+def safe_set_cell(ws, cell_ref, value):
+    """Safely set cell value, handling merged cells."""
+    try:
+        cell = ws[cell_ref]
+        # For merged cells, openpyxl only allows writing to the top-left cell
+        # Check if this cell is part of a merged range
+        for merged_range in ws.merged_cells.ranges:
+            if cell.coordinate in merged_range:
+                # Get the top-left cell of the merged range
+                top_left_cell = ws.cell(merged_range.min_row, merged_range.min_col)
+                top_left_cell.value = value
+                return
+        # Not a merged cell, set directly
+        cell.value = value
+    except Exception as e:
+        # If there's any issue, try to set the value directly
+        try:
+            ws[cell_ref].value = value
+        except:
+            pass  # Skip if unable to write
+
 # Get the project root directory (parent of excel-form-filler-agent)
 PROJECT_ROOT = Path(__file__).parent.parent
 DEFAULT_TEMPLATE = str(PROJECT_ROOT / 'SailPoint_Onboarding_Application_Questionnaire_v2.xlsx')
@@ -95,136 +116,136 @@ def fill_excel_form(template_path: Optional[str] = None, output_path: Optional[s
             ws = wb['Application General Information']
             
             # Application Name
-            ws['C12'] = "MongoDB Authorization App"
+            safe_set_cell(ws, 'C12', "MongoDB Authorization App")
             
             # Application Description  
-            ws['C19'] = "MongoDB-based application managing user authorization, roles, and permissions for internal systems."
+            safe_set_cell(ws, 'C19', "MongoDB-based application managing user authorization, roles, and permissions for internal systems.")
             
             # Submitted By
-            ws['D21'] = "Automated Agent"
+            safe_set_cell(ws, 'D21', "Automated Agent")
             
             # Business Owner
-            ws['C25'] = "IT Security Team"
+            safe_set_cell(ws, 'C25', "IT Security Team")
             
             # Technical Owner
-            ws['C26'] = "Database Administrator"
+            safe_set_cell(ws, 'C26', "Database Administrator")
             
             # Lead Technical Contact
-            ws['C27'] = "MongoDB Team"
+            safe_set_cell(ws, 'C27', "MongoDB Team")
             
             # Internally developed or procured
-            ws['C29'] = "Internally Developed"
+            safe_set_cell(ws, 'C29', "Internally Developed")
             
             # Environments
-            ws['C30'] = "DEV, UAT, PROD"
+            safe_set_cell(ws, 'C30', "DEV, UAT, PROD")
             
             # Domain
-            ws['C31'] = "CWS"
+            safe_set_cell(ws, 'C31', "CWS")
             
             # Business Objectives
-            ws['C32'] = "Centralized user access management and role-based authorization"
+            safe_set_cell(ws, 'C32', "Centralized user access management and role-based authorization")
             
             # SOW Required
-            ws['C33'] = "No"
+            safe_set_cell(ws, 'C33', "No")
             
             # Total active users
-            ws['C34'] = str(data.get('user_count', 0))
+            safe_set_cell(ws, 'C34', str(data.get('user_count', 0)))
             
             # Uses Entra/AD
-            ws['C35'] = "No - uses MongoDB for authentication"
+            safe_set_cell(ws, 'C35', "No - uses MongoDB for authentication")
             
             # Current provisioning process
-            ws['C36'] = "Manual - Database updates"
+            safe_set_cell(ws, 'C36', "Manual - Database updates")
             
             # Account creation process
-            ws['C37'] = "Direct MongoDB document insertion with role assignment"
+            safe_set_cell(ws, 'C37', "Direct MongoDB document insertion with role assignment")
             
             # Account types
-            ws['C38'] = "Employee, Contractor"
+            safe_set_cell(ws, 'C38', "Employee, Contractor")
             
             # Total roles
-            ws['C39'] = f"{len(data.get('entitlements', []))} roles: {', '.join(data.get('entitlements', []))}"
+            safe_set_cell(ws, 'C39', f"{len(data.get('entitlements', []))} roles: {', '.join(data.get('entitlements', []))}")
             
             # Multiple roles
-            ws['C40'] = "Yes"
+            safe_set_cell(ws, 'C40', "Yes")
             
             # Elevated privileges
-            ws['C41'] = "Admin role provides elevated access to system configuration"
+            safe_set_cell(ws, 'C41', "Admin role provides elevated access to system configuration")
             
             # RBAC
-            ws['C42'] = "Yes - role-based access controls implemented"
+            safe_set_cell(ws, 'C42', "Yes - role-based access controls implemented")
             
             # Super admin
-            ws['C43'] = "Yes - 'admin' role has full system access"
+            safe_set_cell(ws, 'C43', "Yes - 'admin' role has full system access")
             
             # SOD Policies
-            ws['C44'] = "Yes - admin and user roles have separation"
+            safe_set_cell(ws, 'C44', "Yes - admin and user roles have separation")
         
         # Fill Application On-boarding Form sheet
         if 'Application On-boarding Form' in wb.sheetnames:
             ws = wb['Application On-boarding Form']
             
             # Case sensitive
-            ws['C13'] = "Yes"
+            safe_set_cell(ws, 'C13', "Yes")
             
             # Authorized to change
-            ws['C14'] = "Database Administrator"
+            safe_set_cell(ws, 'C14', "Database Administrator")
             
             # Disabled accounts
-            ws['C15'] = "Yes - status='inactive'"
+            safe_set_cell(ws, 'C15', "Yes - status='inactive'")
             
             # Dormant accounts
-            ws['C16'] = "Yes - via status field"
+            safe_set_cell(ws, 'C16', "Yes - via status field")
             
             # Service accounts
-            ws['C17'] = "Yes - MongoDB connection credentials"
+            safe_set_cell(ws, 'C17', "Yes - MongoDB connection credentials")
             
             # Password rotation
-            ws['C18'] = "Quarterly"
+            safe_set_cell(ws, 'C18', "Quarterly")
             
             # Business Owner
-            ws['C20'] = "IT Security Team"
+            safe_set_cell(ws, 'C20', "IT Security Team")
             
             # Attribute Name
-            ws['C21'] = "userId, firstName, lastName, email, status, roles"
+            safe_set_cell(ws, 'C21', "userId, firstName, lastName, email, status, roles")
         
         # Fill Environment sheet
         if 'Environment' in wb.sheetnames:
             ws = wb['Environment']
             
             # Production Details
-            ws['G13'] = "34.172.211.78"  # Hostname
-            ws['G14'] = "27017"  # Port
-            ws['G15'] = "app_auth"  # Database Name
-            ws['G16'] = "sailpoint_readonly"  # Username (placeholder)
-            ws['G17'] = "[Stored in Secrets Manager]"  # Password
-            ws['G18'] = "mongodb://34.172.211.78:27017/app_auth"  # JDBC/Connection URL
+            safe_set_cell(ws, 'G13', "34.172.211.78")  # Hostname
+            safe_set_cell(ws, 'G14', "27017")  # Port
+            safe_set_cell(ws, 'G15', "app_auth")  # Database Name
+            safe_set_cell(ws, 'G16', "sailpoint_readonly")  # Username (placeholder)
+            safe_set_cell(ws, 'G17', "[Stored in Secrets Manager]")  # Password
+            safe_set_cell(ws, 'G18', "mongodb://34.172.211.78:27017/app_auth")  # JDBC/Connection URL
             
             # API Details
-            ws['G23'] = "http://34.9.116.130:3000"  # Base URL (MCP Server)
+            safe_set_cell(ws, 'G23', "http://34.9.116.130:3000")  # Base URL (MCP Server)
         
         # Fill Process type sheet
         if 'Process type ' in wb.sheetnames:
             ws = wb['Process type ']
             
             # Create account
-            ws['B3'] = "Yes"
-            ws['C3'] = "Create user document in MongoDB with required attributes and roles"
+            safe_set_cell(ws, 'B3', "Yes")
+            safe_set_cell(ws, 'C3', "Create user document in MongoDB with required attributes and roles")
             
             # Modify account
-            ws['B4'] = "Yes"
-            ws['C4'] = "Update user document fields including roles array"
+            safe_set_cell(ws, 'B4', "Yes")
+            safe_set_cell(ws, 'C4', "Update user document fields including roles array")
             
             # Disable account
-            ws['B5'] = "Yes"
-            ws['C5'] = "Set status field to 'inactive'"
+            safe_set_cell(ws, 'B5', "Yes")
+            safe_set_cell(ws, 'C5', "Set status field to 'inactive'")
             
             # Delete account
-            ws['B6'] = "Yes"
-            ws['C6'] = "Remove user document from collection"
+            safe_set_cell(ws, 'B6', "Yes")
+            safe_set_cell(ws, 'C6', "Remove user document from collection")
             
             # Required attributes
-            ws['B7'] = "userId, firstName, lastName, email, status, roles[]"
+            safe_set_cell(ws, 'B7', "userId, firstName, lastName, email, status, roles[]")
         
         # Fill Roles sheet
         if 'Roles' in wb.sheetnames:
@@ -234,10 +255,10 @@ def fill_excel_form(template_path: Optional[str] = None, output_path: Optional[s
             roles_data = data.get('entitlements', [])
             start_row = 2
             for idx, role in enumerate(roles_data, start=1):
-                ws[f'G{start_row + idx}'] = idx  # S.no
-                ws[f'H{start_row + idx}'] = role  # Role Name
-                ws[f'I{start_row + idx}'] = f"{role} permissions"  # Entitlement
-                ws[f'J{start_row + idx}'] = f"Standard {role} role"  # Description
+                safe_set_cell(ws, f'G{start_row + idx}', idx)  # S.no
+                safe_set_cell(ws, f'H{start_row + idx}', role)  # Role Name
+                safe_set_cell(ws, f'I{start_row + idx}', f"{role} permissions")  # Entitlement
+                safe_set_cell(ws, f'J{start_row + idx}', f"Standard {role} role")  # Description
         
         # Generate output path if not provided
         if not output_path:

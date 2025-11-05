@@ -8,7 +8,10 @@ from typing import Optional
 from google.adk.agents.llm_agent import Agent
 
 MCP_QUERY_URL = 'http://34.9.116.130:3000/mcp/query'
-DEFAULT_TEMPLATE = r'/mnt/c/Users/banu.parasuraman/Downloads/SailPoint_Onboarding_Application_Questionnaire_v2.xlsx'
+
+# Get the project root directory (parent of excel-form-filler-agent)
+PROJECT_ROOT = Path(__file__).parent.parent
+DEFAULT_TEMPLATE = str(PROJECT_ROOT / 'SailPoint_Onboarding_Application_Questionnaire_v2.xlsx')
 
 def get_sailpoint_data_from_mcp() -> dict:
     """Fetches SailPoint onboarding data from the MCP server."""
@@ -64,8 +67,11 @@ def fill_excel_form(template_path: str = DEFAULT_TEMPLATE, output_path: Optional
         Dictionary with status and details of the operation
     """
     try:
+        # Convert to Path object for easier handling
+        template_path = Path(template_path)
+        
         # Check if template exists
-        if not Path(template_path).exists():
+        if not template_path.exists():
             return {
                 "status": "error",
                 "message": f"Template file not found: {template_path}"
@@ -78,7 +84,7 @@ def fill_excel_form(template_path: str = DEFAULT_TEMPLATE, output_path: Optional
             return data
         
         # Load the Excel template
-        wb = openpyxl.load_workbook(template_path)
+        wb = openpyxl.load_workbook(str(template_path))
         
         # Fill Application General Information sheet
         if 'Application General Information' in wb.sheetnames:
@@ -347,9 +353,7 @@ When a user asks to read a filled form:
 When a user asks for raw MongoDB data:
 1. Use 'get_sailpoint_data_from_mcp' tool
 
-The template is automatically located at:
-C:\\Users\\banu.parasuraman\\Downloads\\SailPoint_Onboarding_Application_Questionnaire_v2.xlsx
-
+The template is automatically located in the project root directory.
 Output files are saved in the excel-form-filler-agent directory with a timestamp.""",
     tools=[fill_excel_form, read_excel_form, get_sailpoint_data_from_mcp],
 )

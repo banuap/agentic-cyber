@@ -55,18 +55,22 @@ def get_sailpoint_data_from_mcp() -> dict:
             "message": f"Failed to fetch user data: {str(e)}"
         }
 
-def fill_excel_form(template_path: str = DEFAULT_TEMPLATE, output_path: Optional[str] = None) -> dict:
+def fill_excel_form(template_path: Optional[str] = None, output_path: Optional[str] = None) -> dict:
     """
     Fills the SailPoint onboarding Excel form with data from MCP server.
     
     Args:
-        template_path: Path to the Excel template file
+        template_path: Path to the Excel template file (optional, uses default if not provided)
         output_path: Path where the filled Excel file should be saved
     
     Returns:
         Dictionary with status and details of the operation
     """
     try:
+        # Use default template if none provided
+        if template_path is None:
+            template_path = DEFAULT_TEMPLATE
+        
         # Convert to Path object for easier handling
         template_path = Path(template_path)
         
@@ -342,9 +346,11 @@ root_agent = Agent(
     instruction="""You are an Excel form automation specialist for SailPoint application onboarding.
 
 When a user asks you to fill the Excel form:
-1. Use 'fill_excel_form' tool - it will automatically fetch data from MCP/MongoDB and fill all fields
-2. The tool fills 5 sheets: Application General Information, Application On-boarding Form, Environment, Process type, and Roles
+1. Call 'fill_excel_form' tool WITHOUT providing template_path parameter (leave it empty/null) - it will use the default template
+2. The tool automatically fetches data from MCP/MongoDB and fills all fields in 5 sheets: Application General Information, Application On-boarding Form, Environment, Process type, and Roles
 3. Provide a clear summary of what was filled and where the file was saved
+
+IMPORTANT: Do NOT specify a template_path when calling fill_excel_form. The default template is automatically used.
 
 When a user asks to read a filled form:
 1. Use 'read_excel_form' tool with the file path
